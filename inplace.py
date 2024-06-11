@@ -300,24 +300,38 @@ def edit_text_run_by_tags_or_content(service, document_id, search_tags=None, sea
     else:
         print("No updates to perform.")
 
+def print_experience_indices(parsed_json):
+    experiences = parsed_json.get('experiences', parsed_json.get('job_experiences', []))
+    for i, experience in enumerate(experiences):
+        # Initialize with high start and low end to find the min and max respectively
+        start_indices = []
+        end_indices = []
+        
+        
+        # Loop through each key in the experience dictionary
+        for key, value in experience.items():
+            if isinstance(value, dict):  # Single item dict
+                start_indices.append(value['start'])
+                end_indices.append(value['end'])
+            elif isinstance(value, list):  # List of dicts
+                for item in value:
+                    start_indices.append(item['start'])
+                    end_indices.append(item['end'])
+        
+        # Find the minimum start index and maximum end index
+        if start_indices and end_indices:
+            min_start = min(start_indices)
+            max_end = max(end_indices)
+            print(f"Company {i+1} starts at index {min_start} and ends at index {max_end}")
+
 # Example usage:
-edit_text_run_by_tags_or_content(service, DOCUMENT_ID, search_tags=['company_name'], new_text="New Company Name", new_formatting={'bold': True})
+#edit_text_run_by_tags_or_content(service, DOCUMENT_ID, search_tags=['company_name'], new_text="New Company Name", new_formatting={'bold': True})
 
 if __name__ == "__main__":
     # Fetch the document
     document = fetch_document(service, DOCUMENT_ID)
     parsed_json, formatting_details = process_document(document)
-
-    # Specify the company name you are interested in
-    target_company_name = "New Company Name"
-
-    # Filter and print details for all text runs tagged with the specified company name
-    company_specific_details = [
-        detail for detail in formatting_details 
-        if any(f"company_name:{target_company_name}" in tag for tag in detail['tags'])
-    ]
-
-    # Display the results
-    for detail in company_specific_details:
+    print_experience_indices(parsed_json)
+    # Print details for all text runs
+    for detail in formatting_details:
         print(f"Text: {detail['text']}, Start Index: {detail['start_index']}, End Index: {detail['end_index']}, Tags: {detail['tags']}")
-
