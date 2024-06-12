@@ -300,13 +300,13 @@ def edit_text_run_by_tags_or_content(service, document_id, search_tags=None, sea
     else:
         print("No updates to perform.")
 
-def print_experience_indices(parsed_json):
+def get_experience_indices(parsed_json):
+    experience_indices = {}
     experiences = parsed_json.get('experiences', parsed_json.get('job_experiences', []))
     for i, experience in enumerate(experiences):
         # Initialize with high start and low end to find the min and max respectively
         start_indices = []
         end_indices = []
-        
         
         # Loop through each key in the experience dictionary
         for key, value in experience.items():
@@ -322,8 +322,9 @@ def print_experience_indices(parsed_json):
         if start_indices and end_indices:
             min_start = min(start_indices)
             max_end = max(end_indices)
-            print(f"Company {i+1} starts at index {min_start} and ends at index {max_end}")
+            experience_indices[f"Company {i+1}"] = {'start_index': min_start, 'end_index': max_end}
 
+    return experience_indices
 # Example usage:
 #edit_text_run_by_tags_or_content(service, DOCUMENT_ID, search_tags=['company_name'], new_text="New Company Name", new_formatting={'bold': True})
 
